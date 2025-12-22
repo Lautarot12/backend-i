@@ -1,0 +1,16 @@
+{
+    "payload": [
+        {
+            "nombre": "Erick",
+            "apellido": "Morel",
+            "edad": 25,
+            "curso": "BACKEND I"
+        },
+        {
+            "nombre": "Lautaro",
+            "apellido": "Tello",
+            "edad": 23,
+            "curso": "BACKEND II"
+        }
+    ]
+}
