@@ -34,7 +34,8 @@ app.put('/api/products/:pid', async (req, res)=>{
     const product = allProds.payload.find(prod=>prod.id === Number(id))
     if (!product) {
         return res.status(404).send('Producto no encontrado')
-    } Object.assign(product, updatedFields)
+    } delete updatedFields.id
+    Object.assign(product, updatedFields)
     await fs.promises.writeFile(manager.path, JSON.stringify(allProds))
     res.json(product)
 })
