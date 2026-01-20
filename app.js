@@ -31,13 +31,23 @@ app.put('/api/products/:pid', async (req, res)=>{
     const id = parseInt(req.params.pid)
     const updatedFields = req.body
     const allProds = await manager.getProducts()
-    const product = allProds.payload.find(prod=>prod.id === Number(id))
+    const product = allProds.find(prod=>prod.id === Number(id))
     if (!product) {
         return res.status(404).send('Producto no encontrado')
     } delete updatedFields.id
     Object.assign(product, updatedFields)
-    await fs.promises.writeFile(manager.path, JSON.stringify(allProds))
+    await fs.promises.writeFile(manager.path, JSON.stringify({payload: allProds}))
     res.json(product)
+})
+
+app.delete('/api/delete/:pid', async (req, res)=>{
+    const id = parseInt(req.params.pid)
+    const allProds = await manager.getProducts()
+    const filteredProds = allProds.filter((prod)=>{
+        return prod.id !== id
+    })
+    await fs.promises.writeFile(manager.path, JSON.stringify({ payload: filteredProds }))
+    res.send('Producto eliminado correctamente')
 })
 
 app.listen(8080, ()=>{
