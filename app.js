@@ -4,6 +4,7 @@ import ProductManager from './productManager.js'
 import CartManager from './CartManager.js'
 
 const manager = new ProductManager('./products.json')
+const cartManager = new CartManager()
 
 const app = express()
 app.use(express.json())
