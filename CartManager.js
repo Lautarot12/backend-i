@@ -21,6 +21,7 @@ class CartManager {
 
         const stringedParsedCart = JSON.stringify(parsedCart)
         await fs.promises.writeFile('./carts.json', stringedParsedCart)
+        return stringedParsedCart
     }
 
     async addProduct2Cart (cid, pid){

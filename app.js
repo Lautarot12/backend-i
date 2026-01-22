@@ -1,6 +1,7 @@
 import express from 'express'
 import fs from 'fs'
 import ProductManager from './productManager.js'
+import CartManager from './CartManager.js'
 
 const manager = new ProductManager('./products.json')
 
@@ -48,6 +49,41 @@ app.delete('/api/delete/:pid', async (req, res)=>{
     })
     await fs.promises.writeFile(manager.path, JSON.stringify({ payload: filteredProds }))
     res.send('Producto eliminado correctamente')
+})
+
+app.post('/api/carts', async (req, res)=>{
+    const newCart = await CartManager.createCart()
+    return res.json(newCart)
+})
+
+app.get('/api/carts/:cid', async (req, res)=>{
+    const id = parseInt(req.params.cid)
+    const arrayDeCarritos = await fs.promises.readFile('./carts.json','utf-8')
+    const parsedArrayDeCarritos = JSON.parse(arrayDeCarritos)
+    const carritoEncontrado = parsedArrayDeCarritos.find(carrito =>  carrito.id === id)
+    if (!carritoEncontrado) {
+        return res.status(404).send('Error, no se encontro el carrito')
+    }
+    return res.json(carritoEncontrado)
+})
+
+app.post('/api/carts/:cid/product/:pid', async (req, res)=>{
+    const cartId = parseInt(req.params.cid)
+    const prodId = parseInt(req.params.pid)
+    const arrayDeCarritos = await fs.promises.readFile('./carts.json','utf-8')
+    const parsedArrayDeCarritos = JSON.parse(arrayDeCarritos)
+    const carritoEncontrado = parsedArrayDeCarritos.find(carrito =>  carrito.id === cartId)
+    const encontradoId = carritoEncontrado.products.find ((product)=>{
+        const coincide = product.product === Number(prodId)
+        return coincide
+    })
+    if(!encontradoId){
+            carritoEncontrado.products.push({product: prodId, quantity: 1})
+        } else{
+            encontradoId.quantity += 1
+        }
+        await fs.promises.writeFile('./carts.json', JSON.stringify(parsedArrayDeCarritos))
+        res.json(carritoEncontrado)
 })
 
 app.listen(8080, ()=>{
