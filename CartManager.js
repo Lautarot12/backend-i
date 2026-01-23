@@ -48,3 +48,5 @@ class CartManager {
 }
 
 const cart1 = new CartManager()
+
+export default CartManager
