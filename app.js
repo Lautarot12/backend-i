@@ -53,7 +53,7 @@ app.delete('/api/delete/:pid', async (req, res)=>{
 })
 
 app.post('/api/carts', async (req, res)=>{
-    const newCart = await CartManager.createCart()
+    const newCart = await cartManager.createCart()
     return res.json(newCart)
 })
 
@@ -74,6 +74,9 @@ app.post('/api/carts/:cid/product/:pid', async (req, res)=>{
     const arrayDeCarritos = await fs.promises.readFile('./carts.json','utf-8')
     const parsedArrayDeCarritos = JSON.parse(arrayDeCarritos)
     const carritoEncontrado = parsedArrayDeCarritos.find(carrito =>  carrito.id === cartId)
+    if (!carritoEncontrado) {
+        return res.status(404).send('Error, Carrito no encontrado')
+    }
     const encontradoId = carritoEncontrado.products.find ((product)=>{
         const coincide = product.product === Number(prodId)
         return coincide
