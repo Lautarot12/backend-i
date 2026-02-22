@@ -5,6 +5,34 @@ class ProductManager {
         this.path = path
     }
 
+    async updateProduct (id, updatedFields) {
+        const allProds = await this.getData()
+        const product = allProds.find(prod=>prod.id === Number(id))
+        if (!product) {
+            return null
+            } delete updatedFields.id
+            Object.assign(product, updatedFields)
+            await this.saveData(allProds)
+            return product
+        }
+
+        async deleteProduct (id) {
+            const allProds = await this.getData()
+            const deletedProduct = allProds.find(prod=>prod.id === Number(id))
+            if (!deletedProduct) {
+                return null
+            }
+            const filteredProds = allProds.filter((prod)=>{
+                return prod.id !== id
+            })
+            if (filteredProds.length === allProds.length) {
+                return null
+            }
+            await this.saveData(filteredProds)
+            return deletedProduct
+        }
+
+
     async getData () {
         const existe = fs.existsSync(this.path)
         if(!existe) {

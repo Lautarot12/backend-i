@@ -23,29 +23,25 @@ route.get('/:pid', async (req, res)=>{
 route.post('/', async (req, res)=>{
     const body = req.body
     const newProduct = await manager.addProduct(body.title, body.description, body.price, body.thumbnail, body.code, body.stock)
-    res.json(newProduct.payload)
+    res.json(newProduct)
 })
 
 route.put('/:pid', async (req, res)=>{
     const id = parseInt(req.params.pid)
     const updatedFields = req.body
-    const allProds = await manager.getProducts()
-    const product = allProds.find(prod=>prod.id === Number(id))
-    if (!product) {
-        return res.status(404).send('Producto no encontrado')
-    } delete updatedFields.id
-    Object.assign(product, updatedFields)
-    await fs.promises.writeFile(manager.path, JSON.stringify({payload: allProds}))
-    res.json(product)
+    const updatedProduct = await manager.updateProduct(id, updatedFields)
+    if (!updatedProduct) {
+        return res.status(404).send("Error: Producto no encontrado")
+    }
+    return res.json(updatedProduct)
 })
 
 route.delete('/:pid', async (req, res)=>{
     const id = parseInt(req.params.pid)
-    const allProds = await manager.getProducts()
-    const filteredProds = allProds.filter((prod)=>{
-        return prod.id !== id
-    })
-    await fs.promises.writeFile(manager.path, JSON.stringify({ payload: filteredProds }))
+    const deletingProd = await manager.deleteProduct(id)
+    if (!deletingProd) {
+        return res.status(404).send('Error: El producto no pudo eliminarse.')
+    }
     res.send('Producto eliminado correctamente')
 })
 
