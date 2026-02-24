@@ -1,4 +1,7 @@
 import fs from 'fs'
+import ProductManager from './ProductManager.js'
+
+const productManager = new ProductManager('./products.json')
 
 class CartManager {
     
@@ -48,6 +51,10 @@ class CartManager {
     }
 
     async addProduct2Cart (cid, pid){
+        const existProd = await productManager.getProductById(pid)
+        if (!existProd) {
+            return null
+        }
         const cartData = await this.getData()
         const carritoEncontrado = cartData.find(carrito =>  carrito.id === Number(cid))
         if (!carritoEncontrado){
