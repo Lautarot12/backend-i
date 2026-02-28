@@ -51,16 +51,20 @@ class ProductManager {
     }
 
 
-    async addProduct (title, description, price, thumbnail, code, stock){
-
+    async addProduct (newProductData){
+        const { title, description, price, status, category, code, stock } = newProductData
         const data = await this.getData()
 
+        if (!title || !description || !price || !status || !category) {
+            return null
+        }
+        
         const newProduct = {
             id: data.length + 1,
             title,
             description,
             price,
-            thumbnail,
+            thumbnail: [],
             code,
             stock
         }
@@ -68,7 +72,7 @@ class ProductManager {
         data.push(newProduct)
 
         await this.saveData(data)
-        return data
+        return newProduct
     }
 
     async getProducts () {
