@@ -58,9 +58,20 @@ class ProductManager {
         if (!title || !description || !price || !status || !category) {
             return null
         }
+
+        const allIds = data.map((prod)=>{
+            return prod.id
+        })
         
+        
+        const maxId = allIds.length === 0
+        ? 0
+        : Math.max(...allIds)
+
+
+
         const newProduct = {
-            id: data.length + 1,
+            id: maxId + 1,
             title,
             description,
             price,
