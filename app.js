@@ -7,11 +7,22 @@ import viewsRoute from './routes/views.routes.js'
 import http from 'http'
 import { Server } from 'socket.io'
 import ProductManager from './ProductManager.js'
+import mongoose from 'mongoose'
 
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server)
 const productManager = new ProductManager('./products.json')
+const connectMongoDB = async ()=>{
+    try {
+        await mongoose.connect('mongodb+srv://Lautarot12Ecommerce1:.-Lau123@ecommerce-cluster.dxjr3rm.mongodb.net/myEcommerce?appName=ecommerce-cluster')
+        console.log('Conectado con MongoDB')
+    } catch (error) {
+        console.log('error al connectar con MongoDB')
+    }
+}
+
+connectMongoDB()
 
 server.listen(8080, () => {
     console.log('Servidor ON')
