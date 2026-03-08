@@ -19,7 +19,7 @@ route.get('/', async (req, res)=>{
 route.get('/:pid', async (req, res)=>{
     try {
         const id = req.params.pid
-        const prodFoundId = await manager.getProductById(id)
+        const prodFoundId = await Product.findById(id)
         if(!prodFoundId){
             res.status(404)
             return res.send('Producto no encontrado')
@@ -59,13 +59,13 @@ route.put('/:pid', async (req, res)=>{
 route.delete('/:pid', async (req, res)=>{
     try {
         const id = req.params.pid
-        const deletingProd = await manager.deleteProduct(id)
+        const deletingProd = await Product.findByIdAndDelete(id)
         if (!deletingProd) {
             return res.status(404).send('Error: El producto no pudo eliminarse.')
         }
-        res.send({
-            'status': 'success',
-            'message': 'Producto eliminado correctamente',
+        res.json({
+            status: 'success',
+            deletingProd,
         })
     } catch (error) {
         res.status(500).send(error)

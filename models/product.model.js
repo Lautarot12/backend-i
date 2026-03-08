@@ -46,6 +46,13 @@ const productSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
+productSchema.index({ title: 1 }, { unique: true })
+productSchema.index({ description: 'text' })
+productSchema.index({ code: 1 }, { unique: true })
+productSchema.index({ price: 1 })
+productSchema.index({ category: 1 })
+productSchema.index({ category: 1, price: 1 })
+
 const Product = mongoose.model('Product', productSchema)
 
 export default Product
