@@ -9,8 +9,13 @@ const manager = new ProductManager('./products.json')
 
 route.get('/', async (req, res)=>{
     try {
-        const products = await Product.find().lean()
-        return res.json(products)
+        const { limit = 10, page = 1 } = req.query
+
+        const data = await Product.paginate({}, { limit, page })
+        const products = data.docs
+        delete data.docs
+
+        return res.json({products, ...data})
     } catch (error) {
         res.status(500).send(error)
     }

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import paginate from "mongoose-paginate-v2";
 
 const productSchema = new mongoose.Schema({
     title: {
@@ -45,6 +46,8 @@ const productSchema = new mongoose.Schema({
         default: 'product.jpg'
     }
 }, { timestamps: true })
+
+productSchema.plugin(paginate)
 
 productSchema.index({ title: 1 }, { unique: true })
 productSchema.index({ description: 'text' })

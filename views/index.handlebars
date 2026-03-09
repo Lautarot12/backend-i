@@ -1,5 +1,20 @@
-<div id="productList">
-    
+<div>
+    <h1>Home</h1>
+
+
+    <div>
+        {{#each products}}
+        <p>{{this.title}}</p>
+        <p>{{this.description}}</p>
+        <p>{{this.price}}</p>
+        {{/each}}
+    </div>
+
+    <div>
+        {{#each links}}
+        <a href={{this.link}}>{{this.text}}</a>
+        {{/each}}
+    </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>

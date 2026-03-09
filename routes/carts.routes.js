@@ -1,29 +1,28 @@
 import { Router } from 'express'
-import CartManager from '../CartManager.js'
+import Cart from "../models/cart.model.js"
+import Product from '../models/product.model.js'
 import fs from 'fs'
 
 const route = Router()
-const cartManager = new CartManager()
 
 route.post('/', async (req, res)=>{
     try {
-        const newCart = await cartManager.createCart()
+        const newCart = await Cart.create({})
         return res.json(newCart)
     } catch (error) {
-        res.status(500).send(error)
+        res.status(500).json(error)
     }
 })
 
 route.get('/:cid', async (req, res)=>{
     try {
-        const id = parseInt(req.params.cid)
-        const arrayDeCarritos = await fs.promises.readFile('./carts.json','utf-8')
-        const parsedArrayDeCarritos = JSON.parse(arrayDeCarritos)
-        const carritoEncontrado = parsedArrayDeCarritos.find(carrito =>  carrito.id === id)
-        if (!carritoEncontrado) {
+        const id = req.params.cid
+        const cart = await Cart.findById(id).populate('products.product')
+        
+        if (!cart) {
             return res.status(404).send('Error, no se encontro el carrito')
         }
-        return res.json(carritoEncontrado)
+        return res.json(cart.products)
     } catch (error) {
         res.status(500).send(error)
     }
@@ -31,25 +30,31 @@ route.get('/:cid', async (req, res)=>{
 
 route.post('/:cid/product/:pid', async (req, res)=>{
     try {
-        const cartId = parseInt(req.params.cid)
-        const prodId = parseInt(req.params.pid)
-        const arrayDeCarritos = await fs.promises.readFile('./carts.json','utf-8')
-        const parsedArrayDeCarritos = JSON.parse(arrayDeCarritos)
-        const carritoEncontrado = parsedArrayDeCarritos.find(carrito =>  carrito.id === cartId)
-        if (!carritoEncontrado) {
-            return res.status(404).send('Error, Carrito no encontrado')
+        const cartId = req.params.cid
+        const prodId = req.params.pid
+        const { quantity } = req.body
+       
+        const product = await Product.findById(prodId)
+        if (!product) {
+            return res.status(404).json('Producto no encontrado')
         }
-        const encontradoId = carritoEncontrado.products.find ((product)=>{
-            const coincide = product.product === Number(prodId)
-            return coincide
-        })
-        if(!encontradoId){
-                carritoEncontrado.products.push({product: prodId, quantity: 1})
-            } else{
-                encontradoId.quantity += 1
-            }
-            await fs.promises.writeFile('./carts.json', JSON.stringify(parsedArrayDeCarritos))
-            res.json(carritoEncontrado)
+        
+        const cart = await Cart.findById(cartId)
+        if (!cart) {
+            return res.status(404).json('Carrito no encontrado')
+        }
+
+        const productIndex = cart.products.findIndex((p)=>p.product == prodId)
+
+        if (productIndex !== -1) {
+            cart.products[productIndex].quantity += quantity
+        } else {
+            cart.products.push({ product: prodId, quantity })
+        }
+
+        const updatedCart = await cart.save()
+
+        res.status(200).json({ status: 'success', updatedCart })
     } catch (error) {
         res.status(500).send(error)
     }

@@ -2,8 +2,12 @@
 
 const socket = io()
 
-function renderProducts(data){
+async function renderProducts(data){
         const divContainer = document.getElementById('productList')
+
+        if (!divContainer) {
+            return
+        }
         
         divContainer.innerHTML = ""
 
