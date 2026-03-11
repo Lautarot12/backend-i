@@ -6,16 +6,15 @@ import handlebars from 'express-handlebars'
 import viewsRoute from './routes/views.routes.js'
 import http from 'http'
 import { Server } from 'socket.io'
-import ProductManager from './ProductManager.js'
 import connectMongoDB from './config/db.js'
 import dotenv from 'dotenv'
+import Product from './models/product.model.js'
 
 dotenv.config()
 
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server)
-const productManager = new ProductManager('./products.json')
 
 connectMongoDB()
 
@@ -39,19 +38,19 @@ app.use('/', viewsRoute)
 
 io.on('connection', async (socket)=>{
     console.log('Nuevo usuario conectado', socket.id)
-    const productList = await productManager.getProducts()
+    const productList = await Product.find()
     io.emit('productList', productList)
 
     socket.on('submit', async (data)=>{
-        const addedProd = await productManager.addProduct(data)
-        const productList = await productManager.getProducts()
+        const addedProd = await Product.create(data)
+        const productList = await Product.find()
         console.log('Se agrego:', addedProd)
         io.emit('productList', productList)
     })
 
     socket.on('deleteProd', async (prod2delete)=>{
-        const deletedProd = await productManager.deleteProduct(prod2delete.id)
-        const productList = await productManager.getProducts()
+        const deletedProd = await Product.findByIdAndDelete(prod2delete.id)
+        const productList = await Product.find()
         io.emit('productList', productList)
         console.log('se elimino:', deletedProd)
     })

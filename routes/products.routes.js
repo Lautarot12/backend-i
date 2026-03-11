@@ -1,21 +1,43 @@
 import { Router } from 'express'
-import ProductManager from '../ProductManager.js'
-import fs from 'fs'
 import Product from '../models/product.model.js'
 
 const route = Router()
-const manager = new ProductManager('./products.json')
 
 
 route.get('/', async (req, res)=>{
     try {
-        const { limit = 10, page = 1 } = req.query
-
-        const data = await Product.paginate({}, { limit, page })
+        const { limit = 10, page = 1, sort, query } = req.query
+        let filter = {}
+        if (query) {
+            if(['frescos', 'congelados', 'precocidos'].includes(query)) filter.category = query
+                else if (query === 'true' || query === 'false') filter.status = query === 'true'
+        }
+        let sortOption = {}
+        if (sort) {
+            if(sort === 'asc') {
+                sortOption = { price: 1 }
+            }
+            else if(sort === 'desc'){
+                sortOption = { price: -1 }
+            }
+        }
+        const data = await Product.paginate(filter, { limit, page, sort: sortOption, lean: true })
         const products = data.docs
         delete data.docs
+        const response = {
+            status: 'success',
+            payload: products,
+            totalPages: data.totalPages,
+            prevPage: data.hasPrevPage ? data.prevPage : null,
+            nextPage: data.hasNextPage ? data.nextPage : null,
+            page: data.page,
+            hasPrevPage: data.hasPrevPage,
+            hasnextPage: data.hasNextPage,
+            prevLink: null,
+            nextLink: null
+        }
 
-        return res.json({products, ...data})
+        return res.json(response)
     } catch (error) {
         res.status(500).send(error)
     }

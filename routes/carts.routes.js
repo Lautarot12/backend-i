@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import Cart from "../models/cart.model.js"
 import Product from '../models/product.model.js'
-import fs from 'fs'
 
 const route = Router()
 
@@ -60,4 +59,25 @@ route.post('/:cid/product/:pid', async (req, res)=>{
     }
 })
 
-export default route
+route.delete('/:cid', async (req, res)=>{
+    try {
+        const cartId = req.params.cid
+        const cart = await Cart.findById(cartId)
+        if (!cart) {
+            return  res.status(404).json({
+            status: 'error',
+            message: 'No se pudo encontrar el carrito'
+        })
+        }
+        cart.products = []
+        await cart.save()
+        res.json({
+            status: 'success',
+            message: 'Carrito vaciado correctamente'
+        })
+        } catch (error) {
+            res.status(500).json(error)
+        }
+    })
+
+    export default route
