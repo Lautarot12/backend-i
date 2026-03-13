@@ -29,3 +29,27 @@ route.get('/realtimeproducts', (req, res)=>{
 })
 
 export default route
+
+route.get('/products', async (req, res)=>{
+    
+    const { page = 1, limit = 10, sort } = req.query
+
+    let sortOption = {}
+
+    if(sort === 'asc'){
+        sortOption = { price: 1 }
+    } else if (sort === 'desc') {
+        sortOption = { price: -1 }
+    }
+    
+    const data = await Product.paginate({}, { limit, page, sort: sortOption, lean: true })
+
+    res.render('products', {
+        products: data.docs,
+        page: data.page,
+        hasPrevPage: data.hasPrevPage,
+        hasNextPage: data.hasNextPage,
+        prevPage: data.prevPage,
+        nextPage: data.nextPage
+    })
+})
