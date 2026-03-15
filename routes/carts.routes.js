@@ -31,9 +31,10 @@ route.post('/:cid/product/:pid', async (req, res)=>{
     try {
         const cartId = req.params.cid
         const prodId = req.params.pid
-        const { quantity } = req.body
+        const quantity = req.body?.quantity || 1
        
         const product = await Product.findById(prodId)
+        
         if (!product) {
             return res.status(404).json('Producto no encontrado')
         }
@@ -42,11 +43,14 @@ route.post('/:cid/product/:pid', async (req, res)=>{
         if (!cart) {
             return res.status(404).json('Carrito no encontrado')
         }
-
-        const productIndex = cart.products.findIndex((p)=>p.product == prodId)
+        console.log('products in cart', cart.products)
+        const productIndex = cart.products.findIndex(
+            (p)=>p.product && p.product.equals(prodId)
+        )
 
         if (productIndex !== -1) {
-            cart.products[productIndex].quantity += quantity
+            cart.products[productIndex].quantity =
+            (cart.products[productIndex].quantity || 0) + quantity
         } else {
             cart.products.push({ product: prodId, quantity })
         }
@@ -55,6 +59,7 @@ route.post('/:cid/product/:pid', async (req, res)=>{
 
         res.status(200).json({ status: 'success', updatedCart })
     } catch (error) {
+        console.error(error)
         res.status(500).send(error)
     }
 })
